@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+skinparam defaultTextAlignment center
+
+title CitaSalud Arequipa - Diagrama de Despliegue
+
+node "Dispositivo del Usuario" {
+    [Navegador Web / PWA]
+}
+
+cloud "Internet" as Net
+
+node "Servidor VPS (Bajo Costo)" {
+    folder "Contenedores / Entorno" {
+        [Proxy Reverso / Nginx] as Nginx
+        [Aplicación Monolito Modular\n(Backend + Workers)] as App
+        database "Base de Datos\n(PostgreSQL)" as DB
+        queue "Sistema de Colas\n(Redis)" as Redis
+    }
+}
+
+cloud "API de WhatsApp" as WA
+
+[Navegador Web / PWA] --> Net : HTTPS
+Net --> Nginx : Tráfico HTTP/S
+Nginx --> App : Redirige peticiones
+App --> DB : Consultas y transacciones atómicas
+App --> Redis : Encola notificaciones
+Redis --> App : Procesa tareas secundarias
+App --> WA : Envía mensajes vía API
+
+@enduml

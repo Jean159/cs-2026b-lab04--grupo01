@@ -1,0 +1,54 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+title CitaSalud Arequipa - Diagrama de Clases Principal
+
+class Paciente {
+    - id: Long
+    - dni: String
+    - nombres: String
+    - telefono: String
+    - correo: String
+    + registrar()
+    + buscarDisponibilidad()
+}
+
+class Medico {
+    - id: Long
+    - cmp: String
+    - nombres: String
+    - especialidadId: Long
+    + verAgendaDelDia()
+}
+
+class Especialidad {
+    - id: Long
+    - nombre: String
+    - descripcion: String
+}
+
+class Cita {
+    - id: Long
+    - fechaHora: DateTime
+    - estado: String
+    - pacienteId: Long
+    - medicoId: Long
+    + reservar()
+    + cancelar()
+}
+
+class NotificacionWhatsApp {
+    - id: Long
+    - mensaje: String
+    - estadoEnvio: String
+    - fechaEnvio: DateTime
+    + encolar()
+    + enviar()
+}
+
+Paciente "1" -- "0..*" Cita : reserva >
+Medico "1" -- "0..*" Cita : atiende >
+Especialidad "1" -- "0..*" Medico : agrupa >
+Cita "1" -- "1" NotificacionWhatsApp : genera >
+
+@enduml

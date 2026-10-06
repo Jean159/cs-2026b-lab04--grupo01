@@ -1,0 +1,37 @@
+@startuml
+skinparam BoxPadding 10
+skinparam ParticipantPadding 10
+
+title CitaSalud Arequipa - Secuencia de Reserva Concurrente (7:00 a. m.)
+
+autonumber
+
+actor Paciente
+participant "Interfaz Web / PWA" as UI
+participant "Módulo de Reservas" as Reservas
+database "Base de Datos\n(Transaccional)" as BD
+
+Paciente -> UI: Solicita reservar cita (Especialidad/Horario)
+UI -> Reservas: POST /api/citas/reservar
+activate Reservas
+
+Reservas -> BD: BEGIN TRANSACTION (Bloqueo / Unicidad)
+activate BD
+
+alt Cupo Disponible (p95 <= 3s)
+    BD --> Reservas: Confirmación de espacio libre
+    Reservas -> BD: INSERT cita (Estado: Reservada)
+    BD --> Reservas: Commit exitoso
+    Reservas --> UI: HTTP 201: Cita reservada con éxito
+    UI --> Paciente: Muestra confirmación de reserva
+else Cupo Ocupado / Duplicado
+    BD --> Reservas: Conflicto / Restricción única violada
+    Reservas -> BD: ROLLBACK
+    BD --> Reservas: 
+    Reservas --> UI: HTTP 409: Horario no disponible
+    UI --> Paciente: Muestra mensaje de error (intentar otro horario)
+end
+deactivate BD
+deactivate Reservas
+
+@enduml
