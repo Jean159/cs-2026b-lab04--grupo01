@@ -1,0 +1,7 @@
+# Auditoría de Consistencia UML (Reglas C1-C5)
+
+| Regla | Hallazgo de la IA | Verificación del equipo | Acción tomada |
+| :--- | :--- | :--- | :--- |
+| **C1** | El mensaje asíncrono `enviarConfirmacion()` es llamado en el diagrama de secuencia, pero la clase receptora `Notificador` no la define en el diagrama de clases original. | **FALSO POSITIVO:** La clase abstracta (puerto) `Notificador` sí define la operación `+ enviarConfirmacion(cita: Cita): void`. La IA se confundió por el formateo de los parámetros en PlantUML. | Se rechaza el hallazgo. El diagrama de secuencia es correcto. |
+| **C2** | La transición de `RESERVADA` a `CONFIRMADA` en la máquina de estados carece de una operación correspondiente en la clase `Cita`. | **Correcto:** Se omitió agregar el método de confirmación en el diseño inicial. | Se procedió a agregar la función `+ confirmarAsistencia(): void` a la clase `Cita` en el diagrama de clases y en el código. |
+| **C4** | Posible dependencia cíclica detectada entre los paquetes `reservas` y `notificaciones` si la API de WhatsApp falla y debe reintentar la reserva. | **FALSO POSITIVO:** La dependencia es estrictamente unidireccional. El ADR-001 especifica que las notificaciones son asíncronas (fire-and-forget) y no afectan el estado transaccional de la reserva. | Se rechaza el hallazgo. El diagrama de paquetes se mantiene sin cambios. |
