@@ -1,0 +1,81 @@
+@startuml clases-citasalud
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam classBackgroundColor #EEF2F8
+skinparam classBorderColor #1A3A5C
+
+title CitaSalud Arequipa - Módulo de Citas (Diseño)
+
+class Paciente {
+  - id: UUID
+  - dni: String
+  - nombres: String
+  - celular: String
+}
+
+class Medico {
+  - id: UUID
+  - colegiatura: String
+  - nombres: String
+  - especialidad: String
+}
+
+class Horario {
+  - id: UUID
+  - fechaHora: DateTime
+  - cuposDisponibles: int
+  + reservarCupo(): void
+  + liberarCupo(): void
+}
+
+class Cita {
+  - id: UUID
+  - fechaRegistro: DateTime
+  - estado: EstadoCita
+  + confirmarAsistencia(): void
+  + registrarAtencion(): void
+  + cancelar(motivo: String): void
+}
+
+enum EstadoCita {
+  RESERVADA
+  CONFIRMADA
+  ATENDIDA
+  NO_ASISTIO
+  CANCELADA
+}
+
+interface Notificador <<puerto>> {
+  + enviarConfirmacion(cita: Cita): void
+}
+
+class WhatsAppAdapter <<adaptador>> {
+  - apiKey: String
+  + enviarConfirmacion(cita: Cita): void
+}
+
+class ServicioCitas <<servicio>> {
+  + reservarCita(pacienteId: UUID, medicoId: UUID, fecha: DateTime): Cita
+}
+
+interface RepositorioHorarios <<puerto>> {
+  + buscarHorario(medicoId: UUID, fecha: DateTime): Horario
+  + guardar(h: Horario): void
+}
+
+' Relaciones con multiplicidades estrictas
+Paciente "1" -- "0..*" Cita : realiza >
+Medico "1" -- "0..*" Horario : tiene asignado >
+Horario "1" -- "0..*" Cita : contiene >
+Cita "1" --> "1" EstadoCita : tiene >
+
+' Realización de interfaces (Puertos y Adaptadores)
+Notificador <|.. WhatsAppAdapter : <<realiza>>
+
+' Dependencias de uso
+ServicioCitas ..> Cita : <<crea>>
+ServicioCitas ..> RepositorioHorarios : <<usa>>
+ServicioCitas ..> Notificador : <<usa asíncrono>>
+
+@enduml

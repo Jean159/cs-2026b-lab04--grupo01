@@ -1,0 +1,15 @@
+stateDiagram-v2
+    direction TB
+    
+    [*] --> RESERVADA: crear() [cuposDisponibles > 0]
+    
+    RESERVADA --> CONFIRMADA: confirmarAsistencia()
+    RESERVADA --> CANCELADA: cancelar(motivo) [por paciente o clínica]
+    
+    CONFIRMADA --> ATENDIDA: registrarAtencion()
+    CONFIRMADA --> NO_ASISTIO: marcarInasistencia() [fin de jornada sin registro]
+    CONFIRMADA --> CANCELADA: cancelar(motivo)
+    
+    ATENDIDA --> [*]
+    NO_ASISTIO --> [*]
+    CANCELADA --> [*]

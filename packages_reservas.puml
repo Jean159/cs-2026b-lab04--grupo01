@@ -1,0 +1,7 @@
+@startuml packages_reservas
+set namespaceSeparator none
+package "reservas" as reservas {
+}
+package "reservas.dominio" as reservas.dominio {
+}
+@enduml

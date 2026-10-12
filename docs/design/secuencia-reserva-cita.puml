@@ -1,0 +1,47 @@
+@startuml secuencia-reserva-cita
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam sequenceMessageAlign center
+autonumber
+
+actor Paciente
+participant "PWA / Web" as UI
+participant "CitaController" as C
+participant "ServicioCitas" as S
+participant "RepositorioHorarios" as RH
+participant "Horario" as H
+participant "Cita" as Cita
+participant "Notificador\n<<puerto>>" as N
+
+Paciente -> UI: Solicita reserva (medicoId, fecha)
+UI -> C: POST /citas
+C -> S: reservarCita(pacienteId, medicoId, fecha)
+
+S -> RH: buscarHorario(medicoId, fecha)
+RH --> S: horario
+
+alt [cuposDisponibles > 0]
+    S -> H: reservarCupo()
+    
+    ' Se crea la instancia de la cita
+    S -> Cita ** : <<create>> (paciente, horario)
+    
+    opt [Paciente tiene celular registrado]
+        S ->> N: enviarConfirmacion(cita)
+        note right of N
+            asíncrono
+            (vía Celery/Redis, no bloquea)
+        end note
+    end
+    
+    S --> C: cita (estado: RESERVADA)
+    C --> UI: 200 OK
+    UI --> Paciente: Muestra confirmación de reserva
+    
+else [cuposDisponibles == 0]
+    S --> C: Exception("Sin cupos")
+    C --> UI: 409 Conflicto
+    UI --> Paciente: Muestra error y sugiere otro horario
+end
+
+@enduml

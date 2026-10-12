@@ -1,0 +1,48 @@
+@startuml classes_reservas
+set namespaceSeparator none
+class "Cita" as reservas.dominio.Cita {
+  estado
+  fechaRegistro : datetime
+  horario
+  id : UUID
+  paciente
+  cancelar(motivo: str) -> None
+  confirmarAsistencia() -> None
+  registrarAtencion() -> None
+}
+class "EstadoCita" as reservas.dominio.EstadoCita {
+  name
+}
+class "Horario" as reservas.dominio.Horario {
+  cuposDisponibles : int
+  fechaHora : datetime
+  id : UUID
+  medico
+  liberarCupo() -> None
+  reservarCupo() -> None
+}
+class "Medico" as reservas.dominio.Medico {
+  colegiatura : str
+  especialidad : str
+  id : UUID
+  nombres : str
+}
+class "Notificador" as reservas.dominio.Notificador {
+  {abstract}enviarConfirmacion(cita: Cita) -> None
+}
+class "Paciente" as reservas.dominio.Paciente {
+  celular : str
+  dni : str
+  id : UUID
+  nombres : str
+}
+class "WhatsAppAdapter" as reservas.dominio.WhatsAppAdapter {
+  apiKey : str
+  {abstract}enviarConfirmacion(cita: Cita) -> None
+}
+reservas.dominio.WhatsAppAdapter --|> reservas.dominio.Notificador
+reservas.dominio.Cita --> reservas.dominio.EstadoCita : estado
+reservas.dominio.Cita --> reservas.dominio.Horario : horario
+reservas.dominio.Horario --> reservas.dominio.Medico : medico
+reservas.dominio.Cita --> reservas.dominio.Paciente : paciente
+@enduml

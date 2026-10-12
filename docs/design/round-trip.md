@@ -1,0 +1,7 @@
+# Comparación Round-Trip: Módulo de Reservas
+
+| Diferencia observada | Causa | Acción |
+| :--- | :--- | :--- |
+| **No aparecen las multiplicidades `1..*` ni `0..*`** en las relaciones entre Paciente, Medico y Cita. | La herramienta `pyreverse` no infiere asociaciones de tipo colección ni multiplicidades complejas desde anotaciones básicas de Python. | **Documentar limitación:** El diagrama de diseño inicial en PlantUML se mantiene como fuente de la verdad para las multiplicidades (Regla C3). |
+| **La interfaz `Notificador` se grafica como una superclase regular**, y `WhatsAppAdapter` como una subclase simple. | Python no posee una palabra clave `interface` nativa y utiliza herencia de `ABC` (Abstract Base Classes). `pyreverse` lo interpreta como generalización. | **Aceptable:** Es la convención en Python, por lo que el código es correcto. |
+| **Faltan el `ServicioCitas` y `RepositorioHorarios`** en el diagrama generado. | El código esqueleto generado y analizado se centró exclusivamente en las entidades y puertos de la capa de Dominio. | **Corregir en el diseño:** En la siguiente iteración se deben crear los archivos para los servicios de aplicación y repositorios para que `pyreverse` los detecte. |
