@@ -54,3 +54,47 @@ Durante el desarrollo de este laboratorio, la IA (ChatGPT y Claude) actuó como 
 1. **Generar escenarios y alternativas:** Acelerando la redacción inicial de los drivers de calidad y proponiendo estructuras de estilos arquitectónicos.
 2. **Crítica adversarial ("Abogado del diablo"):** Permitió identificar puntos de ruptura ocultos, como la saturación del único VPS y el bloqueo de conexiones en PostgreSQL ante las 5,000 solicitudes concurrentes a las 7:00 a. m.
 3. **Validación humana:** El equipo analizó críticamente cada propuesta de la IA, descartando arquitecturas sobrecomplicadas (como microservicios puros con Kubernetes) debido a la restricción absoluta del plazo de 1 mes de desarrollo.
+
+## Diseño UML (Lab 05)
+
+A continuación se presenta el diseño detallado del módulo de reservas para el MVP de CitaSalud Arequipa, elaborado aplicando Ingeniería de Modelos (Diagrams as Code) y asistencia de IA.
+
+### Máquina de Estados: Ciclo de vida de la Cita
+
+```mermaid
+stateDiagram-v2
+    direction TB
+    [*] --> RESERVADA: crear() [cuposDisponibles > 0]
+    RESERVADA --> CONFIRMADA: confirmarAsistencia()
+    RESERVADA --> CANCELADA: cancelar(motivo) [por paciente o clínica]
+    CONFIRMADA --> ATENDIDA: registrarAtencion()
+    CONFIRMADA --> NO_ASISTIO: marcarInasistencia() [fin de jornada sin registro]
+    CONFIRMADA --> CANCELADA: cancelar(motivo)
+    ATENDIDA --> [*]
+    NO_ASISTIO --> [*]
+    CANCELADA --> [*]
+```
+
+### Enlaces a la Documentación (Entregables E1 - E7)
+- [E1] Historia de Usuario y Diagrama de Clases
+- [E2] Diagrama de Secuencia - Flujo de Reserva
+- [E3] Máquina de Estados (Archivo Fuente)
+- [E4] Diagrama de Actividades - Flujo de Atención
+- [E5] Diagrama de Paquetes - Monolito Modular
+- [E6] Auditoría Round-trip (Ingeniería Inversa)
+- [E7] Auditoría de Consistencia y Bitácora IA
+
+### 2. Flujo de Pull Request (Revisión Cruzada)
+Dado que usaste un *fork*, este proceso es muy sencillo:
+1. Haz un `git push` de tus cambios a tu fork (`https://github.com/Jean159/cs-2026b-lab04--grupo01.git`).
+2. Entra a GitHub, ve a tu repositorio y verás un botón verde que dice **"Compare & pull request"**. Haz clic ahí.
+3. En la descripción escribe: *"Entrega del Lab 05. Por favor revisar reglas C1 a C5"*.
+4. Tu compañero Mikhail debe entrar, revisar los archivos, dejar un comentario de aprobación y presionar **"Merge pull request"**.
+
+### 3. Crear la Etiqueta de Entrega (Tag)
+Una vez que el código esté unificado en el repositorio principal, desde tu terminal debes ejecutar estos comandos para sellar la entrega con la etiqueta que pide el profesor:
+
+```bash
+git tag v0.5-diseno
+git push origin v0.5-diseno
+```
