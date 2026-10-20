@@ -1,0 +1,43 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Container View: CitaSalud Arequipa"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>Paciente</div><div style='font-size: 70%'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Consulta disponibilidad y reserva.</div>"]
+    style 1 fill:#08427b,stroke:#052e56,color:#ffffff
+    2["<div style='font-weight: bold'>Personal de Admisión</div><div style='font-size: 70%'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Atención en ventanilla.</div>"]
+    style 2 fill:#08427b,stroke:#052e56,color:#ffffff
+    3["<div style='font-weight: bold'>Médico</div><div style='font-size: 70%'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Agenda de pacientes.</div>"]
+    style 3 fill:#08427b,stroke:#052e56,color:#ffffff
+
+    subgraph 4 ["CitaSalud Arequipa"]
+      style 4 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      pwa["<div style='font-weight: bold'>Aplicación Web Progresiva</div><div style='font-size: 70%'>[Container: React + Vite]</div><div style='font-size: 80%; margin-top:10px'>Interfaz móvil y web para usuarios.</div>"]
+      style pwa fill:#438dd5,stroke:#2e6295,color:#ffffff
+      api["<div style='font-weight: bold'>API CitaSalud</div><div style='font-size: 70%'>[Container: Django REST]</div><div style='font-size: 80%; margin-top:10px'>Monolito modular y reglas de negocio.</div>"]
+      style api fill:#438dd5,stroke:#2e6295,color:#ffffff
+      db[("<div style='font-weight: bold'>Base de Datos</div><div style='font-size: 70%'>[Container: PostgreSQL 16]</div><div style='font-size: 80%; margin-top:10px'>Esquemas por módulo de dominio.</div>")]
+      style db fill:#438dd5,stroke:#2e6295,color:#ffffff
+      cola["<div style='font-weight: bold'>Cola y Caché</div><div style='font-size: 70%'>[Container: Redis 7.2]</div><div style='font-size: 80%; margin-top:10px'>Broker Celery y caché de disponibilidad.</div>"]
+      style cola fill:#438dd5,stroke:#2e6295,color:#ffffff
+      worker["<div style='font-weight: bold'>Worker de Tareas</div><div style='font-size: 70%'>[Container: Celery]</div><div style='font-size: 80%; margin-top:10px'>Despacho asíncrono de notificaciones.</div>"]
+      style worker fill:#438dd5,stroke:#2e6295,color:#ffffff
+    end
+
+    wa["<div style='font-weight: bold'>WhatsApp Business API</div><div style='font-size: 70%'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Mensajería en la nube.</div>"]
+    style wa fill:#999999,stroke:#6b6b6b,color:#ffffff
+    reniec["<div style='font-weight: bold'>Servicio Consulta DNI</div><div style='font-size: 70%'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>RENIEC API.</div>"]
+    style reniec fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    1-. "<div>Accede [HTTPS]</div>" .->pwa
+    2-. "<div>Accede [HTTPS]</div>" .->pwa
+    3-. "<div>Accede [HTTPS]</div>" .->pwa
+    pwa-. "<div>Consume [HTTPS/JSON]</div>" .->api
+    api-. "<div>Lee/Escribe [SQL/TCP]</div>" .->db
+    api-. "<div>Encola [Redis]</div>" .->cola
+    worker-. "<div>Consume [Redis]</div>" .->cola
+    worker-. "<div>Despacha [HTTPS/JSON]</div>" .->wa
+    api-. "<div>Valida [HTTPS/JSON]</div>" .->reniec
+  end

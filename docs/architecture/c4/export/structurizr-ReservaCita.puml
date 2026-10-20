@@ -1,0 +1,36 @@
+@startuml
+skinparam dpi 180
+title <size:24>Dynamic View: API CitaSalud</size>\n<size:24>Dinámico: Flujo crítico de reserva concurrente de cita médica (HU-01).</size>
+
+set separator none
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Component>
+
+Container(pwa, "Aplicación Web Progresiva", $techn="React + Vite", $descr="Frontend PWA del paciente")
+Component(reservas, "Módulo Reservas", $techn="Django app", $descr="Coordinador del flujo de cita")
+Component(disponibilidad, "Módulo Disponibilidad", $techn="Django app", $descr="Control de cupos de horarios")
+ContainerDb(db, "Base de Datos", $techn="PostgreSQL 16", $descr="Persistencia relacional")
+Component(notificaciones, "Módulo Notificaciones", $techn="Django app", $descr="Puerto abstracto Notificador")
+ContainerQueue(cola, "Cola de Mensajes", $techn="Redis 7.2", $descr="Broker Celery")
+Container(worker, "Worker Celery", $techn="Python", $descr="Procesador asíncrono")
+System(whatsapp, "WhatsApp Business API", $descr="Mensajería externa")
+
+Rel(pwa, reservas, "1. POST /citas/ (pacienteId, medicoId, fecha)", "HTTPS/JSON")
+Rel(reservas, disponibilidad, "2. Reserva cupo atómicamente (reservarCupo)", "Llamada interna")
+Rel(reservas, db, "3. Inserta registro de cita [RESERVADA]", "SQL/TCP")
+Rel(reservas, notificaciones, "4. Solicita confirmación (enviarConfirmacion)", "Puerto Notificador")
+Rel(notificaciones, cola, "5. Encola tarea asíncrona de notificación", "Redis protocol")
+Rel(worker, cola, "6. Consume tarea pendiente", "Redis protocol")
+Rel(worker, whatsapp, "7. Envía mensaje por WhatsApp al paciente", "HTTPS/JSON")
+
+SHOW_LEGEND(true)
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+skinparam dpi 180
+title <size:24>System Context View: CitaSalud Arequipa</size>\n<size:24>Nivel 1: Contexto de CitaSalud Arequipa y su entorno de integración.</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+
+Person(Paciente, "Paciente", $descr="Paciente registrado en CitaSalud que consulta disponibilidad y agenda citas médicas.", $tags="", $link="")
+Person(PersonaldeAdmision, "Personal de Admisión", $descr="Personal de ventanilla que recepciona a los pacientes y valida citas del día.", $tags="", $link="")
+Person(Medico, "Médico", $descr="Profesional de salud que visualiza su agenda y registra atenciones médicas.", $tags="", $link="")
+
+System(WhatsAppBusinessAPI, "WhatsApp Business API", $descr="Plataforma de mensajería externa de Meta para envío de confirmaciones y recordatorios.", $tags="", $link="")
+System(ServicioConsultaDNI, "Servicio Consulta DNI", $descr="Servicio web externo para validar identidad de pacientes y personal médico.", $tags="", $link="")
+System(CitaSaludArequipa, "CitaSalud Arequipa", $descr="Permite a pacientes reservar citas médicas, gestionar horarios y coordinar atenciones sin cruce de horarios.", $tags="", $link="")
+
+Rel(Paciente, CitaSaludArequipa, "Consulta disponibilidad y reserva citas médicas", $techn="", $tags="", $link="")
+Rel(PersonaldeAdmision, CitaSaludArequipa, "Registra llegada y valida estado de citas", $techn="", $tags="", $link="")
+Rel(Medico, CitaSaludArequipa, "Consulta agenda de pacientes del día", $techn="", $tags="", $link="")
+
+Rel(CitaSaludArequipa, WhatsAppBusinessAPI, "Envía confirmaciones y recordatorios", $techn="HTTPS/JSON", $tags="", $link="")
+Rel(CitaSaludArequipa, ServicioConsultaDNI, "Valida identidad mediante DNI", $techn="HTTPS/JSON", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

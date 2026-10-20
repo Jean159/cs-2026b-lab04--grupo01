@@ -1,0 +1,47 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Component View: API CitaSalud"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    pwa["<div style='font-weight: bold'>PWA Frontend</div><div style='font-size: 70%'>[React]</div>"]
+    style pwa fill:#438dd5,stroke:#2e6295,color:#ffffff
+
+    subgraph api ["API CitaSalud [Monolito Modular]"]
+      style api fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      auth["<div style='font-weight: bold'>Módulo Auth/Usuarios</div><div style='font-size: 70%'>[Django app]</div>"]
+      style auth fill:#85bbf0,stroke:#5585b5,color:#000000
+      disp["<div style='font-weight: bold'>Módulo Disponibilidad</div><div style='font-size: 70%'>[Django app]</div>"]
+      style disp fill:#85bbf0,stroke:#5585b5,color:#000000
+      res["<div style='font-weight: bold'>Módulo Reservas</div><div style='font-size: 70%'>[Django app]</div>"]
+      style res fill:#85bbf0,stroke:#5585b5,color:#000000
+      canc["<div style='font-weight: bold'>Módulo Cancelaciones</div><div style='font-size: 70%'>[Django app]</div>"]
+      style canc fill:#85bbf0,stroke:#5585b5,color:#000000
+      notif["<div style='font-weight: bold'>Módulo Notificaciones</div><div style='font-size: 70%'>[Django app]</div>"]
+      style notif fill:#85bbf0,stroke:#5585b5,color:#000000
+    end
+
+    db[("<div style='font-weight: bold'>PostgreSQL 16</div><div style='font-size: 70%'>[Database]</div>")]
+    style db fill:#438dd5,stroke:#2e6295,color:#ffffff
+    cola["<div style='font-weight: bold'>Redis 7.2</div><div style='font-size: 70%'>[Queue]</div>"]
+    style cola fill:#438dd5,stroke:#2e6295,color:#ffffff
+    reniec["<div style='font-weight: bold'>RENIEC API</div><div style='font-size: 70%'>[Externo]</div>"]
+    style reniec fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    pwa-. "<div>Reserva</div>" .->res
+    pwa-. "<div>Consulta turnos</div>" .->disp
+    pwa-. "<div>Cancela</div>" .->canc
+    pwa-. "<div>Login/DNI</div>" .->auth
+
+    res-. "<div>1. Bloquea cupo</div>" .->disp
+    res-. "<div>2. Pide notificar</div>" .->notif
+    canc-. "<div>Libera cupo</div>" .->disp
+    canc-. "<div>Pide notificar</div>" .->notif
+    auth-. "<div>Valida DNI</div>" .->reniec
+
+    notif-. "<div>Encola evento</div>" .->cola
+    res-. "<div>Persiste cita</div>" .->db
+    disp-. "<div>Actualiza cupos</div>" .->db
+    auth-. "<div>Guarda usuarios</div>" .->db
+  end

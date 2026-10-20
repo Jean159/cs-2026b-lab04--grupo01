@@ -1,0 +1,29 @@
+sequenceDiagram
+  autonumber
+  actor P as Paciente
+  participant PWA as PWA (React)
+  participant Res as Módulo Reservas
+  participant Disp as Módulo Disponibilidad
+  participant DB as PostgreSQL 16
+  participant Notif as Módulo Notificaciones
+  participant Redis as Redis (Cola)
+  participant Worker as Worker Celery
+  participant WA as WhatsApp API
+
+  P->>PWA: Solicita reservar cita médica
+  PWA->>Res: POST /citas/ (pacienteId, medicoId, fecha)
+  Res->>Disp: reservarCupo(medicoId, fecha) [bloqueo atómico]
+  Disp-->>Res: Cupo asignado exitosamente
+  Res->>DB: INSERT INTO citas (estado='RESERVADA')
+  DB-->>Res: Cita persistida (ID: UUID)
+  Res->>Notif: enviarConfirmacion(cita) [puerto Notificador]
+  Notif->>Redis: Encola tarea 'tasks.send_whatsapp_confirmation'
+  Redis-->>Notif: Tarea encolada (ACK)
+  Notif-->>Res: Solicitud aceptada
+  Res-->>PWA: 201 Created (cita reservada)
+  PWA-->>P: Muestra pantalla de confirmación
+
+  Note over Redis,Worker: Procesamiento en background asíncrono
+  Worker->>Redis: Consume tarea de confirmación
+  Worker->>WA: POST /v1/messages (plantilla confirmación)
+  WA-->>Worker: 200 OK (mensaje enrutado)

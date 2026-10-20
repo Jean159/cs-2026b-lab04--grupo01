@@ -1,0 +1,24 @@
+@startuml contexto-manual
+!include <C4/C4_Context>
+skinparam dpi 180
+LAYOUT_LEFT_RIGHT()
+title Contexto de CitaSalud Arequipa (C4-PlantUML escrito a mano)
+
+Person(paciente, "Paciente", "Paciente que consulta y reserva citas médicas")
+Person(admision, "Personal de Admisión", "Personal que valida citas y atiende ventanilla")
+Person(medico, "Médico", "Profesional que consulta su agenda de atenciones")
+
+System(cita, "CitaSalud Arequipa", "Plataforma de gestión y reserva de citas médicas sin cruces")
+
+System_Ext(wa, "WhatsApp Business API", "Servicio externo de mensajería para confirmaciones")
+System_Ext(reniec, "Servicio Consulta DNI", "Servicio externo de validación de identidad")
+
+Rel(paciente, cita, "Consulta disponibilidad y reserva citas médicas")
+Rel(admision, cita, "Registra llegada y valida estado de citas")
+Rel(medico, cita, "Consulta agenda de pacientes del día")
+
+Rel(cita, wa, "Envía confirmaciones y recordatorios", "HTTPS/JSON")
+Rel(cita, reniec, "Valida identidad mediante DNI", "HTTPS/JSON")
+
+SHOW_LEGEND()
+@enduml

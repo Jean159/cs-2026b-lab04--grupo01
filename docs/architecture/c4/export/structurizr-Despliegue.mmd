@@ -1,0 +1,25 @@
+graph TD
+  subgraph UserDevice ["Dispositivo del Usuario (Android/iOS/PC)"]
+    pwa["PWA CitaSalud<br/>[React + Service Worker]"]
+  end
+
+  subgraph CloudVPS ["VPS en la Nube (Ubuntu 24.04 LTS - 2 vCPU, 4GB RAM)"]
+    subgraph DockerEnv ["Docker Compose"]
+      api["citasalud-api<br/>[Django REST Framework]"]
+      worker["citasalud-worker<br/>[Celery Worker]"]
+      db[("citasalud-db<br/>[PostgreSQL 16]")]
+      cola["citasalud-redis<br/>[Redis 7.2]")]
+    end
+  end
+
+  subgraph ExternalSaaS ["Servicios Externos"]
+    wa["WhatsApp Business API<br/>[Meta Cloud]"]
+    reniec["Servicio Consulta DNI<br/>[RENIEC]"]
+  end
+
+  pwa -->|HTTPS / TLS 1.3| api
+  api -->|SQL / TCP 5432| db
+  api -->|Redis Protocol / 6379| cola
+  worker -->|Redis Protocol / 6379| cola
+  worker -->|HTTPS / JSON| wa
+  api -->|HTTPS / JSON| reniec

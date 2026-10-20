@@ -1,0 +1,47 @@
+@startuml
+skinparam dpi 180
+title <size:24>Container View: CitaSalud Arequipa</size>\n<size:24>Nivel 2: Contenedores que componen CitaSalud Arequipa.</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+Person(Paciente, "Paciente", $descr="Paciente registrado en CitaSalud que consulta disponibilidad y agenda citas médicas.", $tags="", $link="")
+Person(PersonaldeAdmision, "Personal de Admisión", $descr="Personal de ventanilla que recepciona a los pacientes y valida citas del día.", $tags="", $link="")
+Person(Medico, "Médico", $descr="Profesional de salud que visualiza su agenda y registra atenciones médicas.", $tags="", $link="")
+
+System(WhatsAppBusinessAPI, "WhatsApp Business API", $descr="Plataforma de mensajería externa de Meta para envío de confirmaciones y recordatorios.", $tags="", $link="")
+System(ServicioConsultaDNI, "Servicio Consulta DNI", $descr="Servicio web externo para validar identidad de pacientes y personal médico.", $tags="", $link="")
+
+System_Boundary("CitaSaludArequipa_boundary", "CitaSalud Arequipa", $tags="") {
+  Container(CitaSaludArequipa.AplicacionWebProgresiva, "Aplicación Web Progresiva", $techn="React + Vite + Service Worker", $descr="Interfaz web y móvil para pacientes y personal de admisión; optimizada para conexiones móviles 3G/4G.", $tags="", $link="")
+  Container(CitaSaludArequipa.APICitaSalud, "API CitaSalud", $techn="Python 3.12 / Django REST Framework", $descr="Monolito modular que expone endpoints REST e implementa la lógica de negocio y control de concurrencia.", $tags="", $link="")
+  ContainerDb(CitaSaludArequipa.BasedeDatos, "Base de Datos", $techn="PostgreSQL 16", $descr="Almacena usuarios, agendas médicas, cupos, citas y registros de auditoría (un esquema por módulo).", $tags="", $link="")
+  ContainerQueue(CitaSaludArequipa.ColadeMensajesyCache, "Cola de Mensajes y Caché", $techn="Redis 7.2", $descr="Broker para encolamiento de tareas Celery y almacenamiento en caché de disponibilidad de turnos.", $tags="", $link="")
+  Container(CitaSaludArequipa.WorkerdeTareasAsincronas, "Worker de Tareas Asíncronas", $techn="Celery / Python", $descr="Procesa en segundo plano el despacho de notificaciones y recordatorios sin degradar el tiempo de respuesta web.", $tags="", $link="")
+}
+
+Rel(Paciente, CitaSaludArequipa.AplicacionWebProgresiva, "Accede a la plataforma desde su móvil o PC", $techn="HTTPS", $tags="", $link="")
+Rel(PersonaldeAdmision, CitaSaludArequipa.AplicacionWebProgresiva, "Gestiona atenciones y pacientes en ventanilla", $techn="HTTPS", $tags="", $link="")
+Rel(Medico, CitaSaludArequipa.AplicacionWebProgresiva, "Revisa agenda y actualiza estados", $techn="HTTPS", $tags="", $link="")
+
+Rel(CitaSaludArequipa.AplicacionWebProgresiva, CitaSaludArequipa.APICitaSalud, "Consume endpoints REST", $techn="HTTPS/JSON (REST)", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud, CitaSaludArequipa.BasedeDatos, "Lee y escribe entidades de negocio", $techn="SQL/TCP", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud, CitaSaludArequipa.ColadeMensajesyCache, "Encola tareas de notificación y consulta caché", $techn="Redis protocol", $tags="", $link="")
+Rel(CitaSaludArequipa.WorkerdeTareasAsincronas, CitaSaludArequipa.ColadeMensajesyCache, "Consume tareas encoladas", $techn="Redis protocol", $tags="", $link="")
+Rel(CitaSaludArequipa.WorkerdeTareasAsincronas, WhatsAppBusinessAPI, "Despacha mensajes de notificación", $techn="HTTPS/JSON", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud, ServicioConsultaDNI, "Consulta validez de documento de identidad", $techn="HTTPS/JSON", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

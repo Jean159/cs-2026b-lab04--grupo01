@@ -1,9 +1,0 @@
-# Bitácora de Uso de IA - Laboratorio 05
-
-| Fecha | Herramienta | Prompt / Tarea | Propuesta de la IA | Decisión del equipo |
-| :--- | :--- | :--- | :--- | :--- |
-| 12/10/2026 | Gemini | *Prompt IA 1:* "Actúa como diseñador orientado a objetos... genera un diagrama de clases en PlantUML..." | Sugirió atributos públicos en la clase `Horario` (ej. `cuposDisponibles`). | **Rechazada:** Se corrigió a visibilidad privada (`-`) y se añadieron métodos `reservarCupo()` para forzar la encapsulación según las reglas de concurrencia. |
-| 12/10/2026 | Gemini | "Genera un diagrama de secuencia para la reserva considerando el bloque alt y asincronía..." | Incluyó la llamada a WhatsApp como síncrona dentro del bloque transaccional principal. | **Corregida:** Se modificó la flecha a asíncrona (`->>`) para respetar el ADR-001 y evitar cuellos de botella. |
-| 12/10/2026 | Gemini | "Genera la máquina de estados de Cita en Mermaid-v2..." | Incluyó un estado `EN_ESPERA` no solicitado en los requisitos de CitaSalud. | **Corregida:** Se eliminó el estado y se ajustó a los 5 estados acordados. |
-| 12/10/2026 | Gemini | "Crea el código esqueleto en Python usando dataclasses basado en el diagrama..." | Generó la clase `Cita` sin inicializadores por defecto para el ID (UUID). | **Corregida:** Se añadió `field(default_factory=uuid4)` para manejar correctamente las instancias en Python. |
-| 12/10/2026 | Gemini | *Prompt IA 3:* "Verifica las reglas C1-C5 en los 5 diagramas..." | Detectó una falla en la regla C1 respecto al método `enviarConfirmacion()` del Notificador. | **Rechazada (Falso Positivo):** La IA no interpretó bien la firma en PlantUML. Se documentó en `consistencia.md`. |

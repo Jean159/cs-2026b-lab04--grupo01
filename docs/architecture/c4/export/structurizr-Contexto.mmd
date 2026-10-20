@@ -1,0 +1,27 @@
+graph LR
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["System Context View: CitaSalud Arequipa"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>Paciente</div><div style='font-size: 70%'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Consulta disponibilidad y agenda citas médicas.</div>"]
+    style 1 fill:#08427b,stroke:#052e56,color:#ffffff
+    2["<div style='font-weight: bold'>Personal de Admisión</div><div style='font-size: 70%'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Valida citas en ventanilla y recepciona pacientes.</div>"]
+    style 2 fill:#08427b,stroke:#052e56,color:#ffffff
+    3["<div style='font-weight: bold'>Médico</div><div style='font-size: 70%'>[Person]</div><div style='font-size: 80%; margin-top:10px'>Visualiza su agenda de consultas y atenciones.</div>"]
+    style 3 fill:#08427b,stroke:#052e56,color:#ffffff
+
+    4["<div style='font-weight: bold'>CitaSalud Arequipa</div><div style='font-size: 70%'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Plataforma de gestión clínica y reserva de citas sin cruces.</div>"]
+    style 4 fill:#1168bd,stroke:#0b4884,color:#ffffff
+
+    5["<div style='font-weight: bold'>WhatsApp Business API</div><div style='font-size: 70%'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Envía mensajes y confirmaciones a los usuarios.</div>"]
+    style 5 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    6["<div style='font-weight: bold'>Servicio Consulta DNI</div><div style='font-size: 70%'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Valida identidad legal de pacientes con RENIEC.</div>"]
+    style 6 fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    1-. "<div>Consulta y reserva</div>" .->4
+    2-. "<div>Valida citas</div>" .->4
+    3-. "<div>Consulta agenda</div>" .->4
+    4-. "<div>Envía confirmaciones<br/>[HTTPS/JSON]</div>" .->5
+    4-. "<div>Valida DNI<br/>[HTTPS/JSON]</div>" .->6
+  end

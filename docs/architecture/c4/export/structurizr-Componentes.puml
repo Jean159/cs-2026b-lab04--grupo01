@@ -1,0 +1,51 @@
+@startuml
+skinparam dpi 180
+title <size:24>Component View: API CitaSalud</size>\n<size:24>Nivel 3: Componentes internos del contenedor API CitaSalud.</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Component>
+
+Container(CitaSaludArequipa.AplicacionWebProgresiva, "Aplicación Web Progresiva", $techn="React + Vite + Service Worker", $descr="Interfaz web y móvil para pacientes y personal de admisión.", $tags="", $link="")
+ContainerDb(CitaSaludArequipa.BasedeDatos, "Base de Datos", $techn="PostgreSQL 16", $descr="Almacena usuarios, agendas, cupos, citas y auditoría.", $tags="", $link="")
+ContainerQueue(CitaSaludArequipa.ColadeMensajesyCache, "Cola de Mensajes y Caché", $techn="Redis 7.2", $descr="Broker para Celery y caché de disponibilidad.", $tags="", $link="")
+System(ServicioConsultaDNI, "Servicio Consulta DNI", $descr="Servicio web externo para validar identidad mediante DNI.", $tags="", $link="")
+
+Container_Boundary("CitaSaludArequipa.APICitaSalud_boundary", "API CitaSalud", $tags="") {
+  Component(CitaSaludArequipa.APICitaSalud.ModuloAuthyUsuarios, "Módulo Auth y Usuarios", $techn="Django app", $descr="Gestiona la autenticación, roles, perfiles y validación de DNI.", $tags="", $link="")
+  Component(CitaSaludArequipa.APICitaSalud.ModuloDisponibilidad, "Módulo Disponibilidad", $techn="Django app", $descr="Gestiona horarios de médicos, turnos y control atómico de cupos disponibles.", $tags="", $link="")
+  Component(CitaSaludArequipa.APICitaSalud.ModuloReservas, "Módulo Reservas", $techn="Django app", $descr="Coordina la creación de citas, validación de reglas de negocio y transacciones.", $tags="", $link="")
+  Component(CitaSaludArequipa.APICitaSalud.ModuloCancelaciones, "Módulo Cancelaciones", $techn="Django app", $descr="Procesa solicitudes de cancelación y libera cupos en horarios.", $tags="", $link="")
+  Component(CitaSaludArequipa.APICitaSalud.ModuloNotificaciones, "Módulo Notificaciones", $techn="Django app", $descr="Implementa el puerto Notificador y encola eventos de mensajería.", $tags="", $link="")
+}
+
+Rel(CitaSaludArequipa.AplicacionWebProgresiva, CitaSaludArequipa.APICitaSalud.ModuloAuthyUsuarios, "Inicia sesión y consulta perfil", $techn="HTTPS/JSON", $tags="", $link="")
+Rel(CitaSaludArequipa.AplicacionWebProgresiva, CitaSaludArequipa.APICitaSalud.ModuloDisponibilidad, "Consulta turnos y cupos disponibles", $techn="HTTPS/JSON", $tags="", $link="")
+Rel(CitaSaludArequipa.AplicacionWebProgresiva, CitaSaludArequipa.APICitaSalud.ModuloReservas, "Solicita reserva de cita médica", $techn="HTTPS/JSON", $tags="", $link="")
+Rel(CitaSaludArequipa.AplicacionWebProgresiva, CitaSaludArequipa.APICitaSalud.ModuloCancelaciones, "Solicita cancelación de cita", $techn="HTTPS/JSON", $tags="", $link="")
+
+Rel(CitaSaludArequipa.APICitaSalud.ModuloReservas, CitaSaludArequipa.APICitaSalud.ModuloDisponibilidad, "Reserva cupo atómicamente", $techn="", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloReservas, CitaSaludArequipa.APICitaSalud.ModuloNotificaciones, "Solicita envío de confirmación", $techn="", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloCancelaciones, CitaSaludArequipa.APICitaSalud.ModuloDisponibilidad, "Libera cupo de horario", $techn="", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloCancelaciones, CitaSaludArequipa.APICitaSalud.ModuloNotificaciones, "Solicita aviso de cancelación", $techn="", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloAuthyUsuarios, ServicioConsultaDNI, "Verifica DNI de usuario", $techn="HTTPS/JSON", $tags="", $link="")
+
+Rel(CitaSaludArequipa.APICitaSalud.ModuloNotificaciones, CitaSaludArequipa.ColadeMensajesyCache, "Encola mensaje de notificación", $techn="Redis protocol", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloAuthyUsuarios, CitaSaludArequipa.BasedeDatos, "Lee y escribe credenciales y perfiles", $techn="SQL", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloDisponibilidad, CitaSaludArequipa.BasedeDatos, "Lee y actualiza cupos de horarios", $techn="SQL", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloReservas, CitaSaludArequipa.BasedeDatos, "Persiste registro de cita médica", $techn="SQL", $tags="", $link="")
+Rel(CitaSaludArequipa.APICitaSalud.ModuloCancelaciones, CitaSaludArequipa.BasedeDatos, "Actualiza estado de cita y motivo", $techn="SQL", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml
